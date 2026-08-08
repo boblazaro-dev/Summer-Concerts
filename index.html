@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summer Concerts — Coastal NC Concert Tracker</title>
+<meta name="description" content="Free outdoor concert schedules for Ocean Isle Beach, Southport, and Kure Beach, North Carolina — dates, locations, and directions.">
+<meta name="theme-color" content="#0e2436">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Summer Concerts">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230e2436'/%3E%3Cpath d='M2 17c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2' stroke='%23ff7a54' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3Cpath d='M2 12c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2' stroke='%237fc4b1' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="manifest" id="manifestLink">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --horizon:#0e2436;
+    --horizon-deep:#0a1b29;
+    --coral:#ff7a54;
+    --seaglass:#7fc4b1;
+    --sand:#f4ead9;
+    --foam:#eef6f3;
+    --ink:#12222c;
+    --line:rgba(244,234,217,0.14);
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--horizon);
+    color:var(--sand);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  a{color:inherit;}
+  img{max-width:100%;}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 24px;}
+
+  /* ---------- Skip link / focus ---------- */
+  .skip-link{position:absolute;left:-999px;top:0;background:var(--coral);color:#12222c;padding:10px 16px;border-radius:0 0 8px 0;z-index:100;}
+  .skip-link:focus{left:0;}
+  a:focus-visible, button:focus-visible, .tab:focus-visible{outline:2px solid var(--coral);outline-offset:3px;}
+
+  /* ---------- Top nav ---------- */
+  header.site{
+    position:sticky;top:0;z-index:40;
+    background:rgba(10,27,41,0.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;max-width:1040px;margin:0 auto;}
+  .brand{display:flex;align-items:center;gap:10px;font-family:'Fraunces',serif;font-size:1.15rem;font-weight:600;}
+  .brand .mark{width:22px;height:22px;flex:none;}
+  .beach-tabs{display:flex;gap:6px;}
+  .tab{
+    font-family:'Inter',sans-serif;font-size:0.85rem;font-weight:600;
+    background:none;border:1px solid var(--line);color:var(--sand);
+    padding:8px 14px;border-radius:999px;cursor:pointer;
+    transition:background .2s ease, border-color .2s ease, color .2s ease;
+    white-space:nowrap;
+  }
+  .tab[aria-selected="true"]{background:var(--coral);border-color:var(--coral);color:var(--horizon-deep);}
+  .tab:hover{border-color:var(--seaglass);}
+
+  /* ---------- Hero ---------- */
+  .hero{padding:64px 0 40px;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--seaglass);margin:0 0 18px;
+  }
+  .hero h1{font-size:clamp(2.4rem,6vw,3.8rem);line-height:1.03;margin:0 0 18px;max-width:11ch;}
+  .hero h1 em{font-style:italic;color:var(--coral);}
+  .hero p.lede{font-size:1.08rem;line-height:1.55;color:rgba(244,234,217,0.82);max-width:52ch;margin:0 0 28px;}
+
+  .next-up{
+    display:flex;gap:18px;align-items:center;
+    background:rgba(244,234,217,0.06);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px 20px;max-width:560px;
+  }
+  .next-up .tag{
+    font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--coral);
+  }
+  .next-up .title{font-family:'Fraunces',serif;font-size:1.15rem;margin:4px 0 2px;}
+  .next-up .meta{font-size:.88rem;color:rgba(244,234,217,0.7);}
+
+  /* wave divider */
+  .wave{display:block;width:100%;height:44px;margin-top:48px;}
+  .wave path{fill:none;stroke:var(--seaglass);stroke-width:1.5;opacity:.55;}
+
+  /* ---------- Section ---------- */
+  main section.beach{padding:52px 0 64px;border-top:1px solid var(--line);}
+  .beach-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:28px;}
+  .beach-head h2{font-size:clamp(1.7rem,3.6vw,2.2rem);margin:0;}
+  .beach-head .series-name{font-family:'IBM Plex Mono',monospace;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--seaglass);margin:0 0 6px;}
+  .facts{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:.9rem;color:rgba(244,234,217,0.75);}
+  .facts span{white-space:nowrap;}
+  .facts strong{color:var(--sand);font-weight:600;}
+
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .btn{
+    font-size:.85rem;font-weight:600;text-decoration:none;
+    padding:9px 16px;border-radius:999px;border:1px solid var(--line);
+    display:inline-flex;align-items:center;gap:6px;
+    transition:background .2s ease,border-color .2s ease;
+  }
+  .btn.primary{background:var(--seaglass);color:var(--horizon-deep);border-color:var(--seaglass);}
+  .btn.primary:hover{background:var(--sand);border-color:var(--sand);}
+  .btn.ghost:hover{border-color:var(--seaglass);}
+
+  /* ---------- Flip-board schedule ---------- */
+  .board{
+    margin-top:26px;border:1px solid var(--line);border-radius:var(--radius);
+    overflow:hidden;background:rgba(10,27,41,0.5);
+  }
+  .board-row{
+    display:grid;grid-template-columns:120px 1fr auto;gap:14px;align-items:center;
+    padding:14px 18px;border-bottom:1px solid var(--line);
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .board-row:last-child{border-bottom:none;}
+  .board-row .date{font-size:.9rem;color:var(--coral);font-weight:600;}
+  .board-row .act{font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;color:var(--sand);}
+  .board-row .status{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:rgba(244,234,217,0.55);}
+  .board-row.today{background:rgba(255,122,84,0.08);}
+  .board-row.today .status{color:var(--coral);}
+  .board-note{padding:14px 18px;font-size:.85rem;color:rgba(244,234,217,0.6);border-top:1px dashed var(--line);}
+
+  /* ---------- Side info cards ---------- */
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px;}
+  @media (max-width:640px){.info-grid{grid-template-columns:1fr;}}
+  .card{background:rgba(244,234,217,0.05);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+  .card h3{font-size:1rem;margin:0 0 8px;font-family:'Inter',sans-serif;font-weight:700;}
+  .card p{margin:0;font-size:.88rem;line-height:1.55;color:rgba(244,234,217,0.75);}
+  .card a.inline{color:var(--seaglass);text-decoration:underline;text-underline-offset:2px;}
+
+  /* ---------- Footer ---------- */
+  footer{border-top:1px solid var(--line);padding:36px 0 48px;}
+  footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;font-size:.82rem;color:rgba(244,234,217,0.55);}
+  footer a{text-decoration:underline;text-underline-offset:2px;}
+
+  /* ---------- Save to phone ---------- */
+  .save-fab{
+    position:fixed;right:18px;bottom:18px;z-index:60;
+    display:flex;align-items:center;gap:8px;
+    background:var(--coral);color:var(--horizon-deep);
+    border:none;border-radius:999px;padding:13px 18px;
+    font-family:'Inter',sans-serif;font-weight:700;font-size:.88rem;
+    box-shadow:0 8px 24px rgba(0,0,0,0.35);cursor:pointer;
+    transition:transform .15s ease;
+  }
+  .save-fab:hover{transform:translateY(-2px);}
+  .save-fab svg{width:18px;height:18px;flex:none;}
+
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(10,20,30,0.6);backdrop-filter:blur(3px);
+    display:flex;align-items:flex-end;justify-content:center;z-index:80;
+  }
+  .modal-overlay[hidden]{display:none;}
+  .modal-sheet{
+    background:var(--horizon-deep);border:1px solid var(--line);
+    border-radius:20px 20px 0 0;padding:26px 24px 32px;
+    max-width:480px;width:100%;
+    box-shadow:0 -12px 40px rgba(0,0,0,0.5);
+  }
+  @media (min-width:640px){
+    .modal-overlay{align-items:center;}
+    .modal-sheet{border-radius:16px;}
+  }
+  .modal-sheet h3{margin:0 0 6px;font-size:1.3rem;}
+  .modal-sheet p.sub{margin:0 0 20px;font-size:.88rem;color:rgba(244,234,217,0.7);}
+  .step{display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;}
+  .step .num{
+    flex:none;width:26px;height:26px;border-radius:50%;
+    background:var(--seaglass);color:var(--horizon-deep);
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:.8rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .step p{margin:0;font-size:.92rem;line-height:1.5;color:var(--sand);}
+  .step p em{color:var(--seaglass);font-style:normal;font-weight:600;}
+  .modal-actions{display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;}
+  .modal-actions button{
+    font-family:'Inter',sans-serif;font-weight:600;font-size:.85rem;
+    border-radius:999px;padding:10px 18px;cursor:pointer;border:1px solid var(--line);
+    background:none;color:var(--sand);
+  }
+  .modal-actions button.primary{background:var(--seaglass);border-color:var(--seaglass);color:var(--horizon-deep);}
+  .toast{
+    position:fixed;left:50%;bottom:90px;transform:translateX(-50%);
+    background:var(--seaglass);color:var(--horizon-deep);
+    padding:10px 18px;border-radius:999px;font-size:.85rem;font-weight:600;
+    z-index:90;opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .toast.show{opacity:1;}
+
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto;}}
+  @media (max-width:700px){
+    .nav{flex-direction:column;align-items:flex-start;gap:12px;}
+    .beach-tabs{overflow-x:auto;width:100%;padding-bottom:2px;}
+    .board-row{grid-template-columns:90px 1fr;}
+    .board-row .status{grid-column:2;}
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site">
+  <nav class="nav" aria-label="Primary">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M2 17c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" stroke="#ff7a54" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M2 12c2 0 2-2 4-2s2 2 4 2 2-2 4-2 2 2 4 2 2-2 4-2" stroke="#7fc4b1" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      Summer Concerts
+    </div>
+    <div class="beach-tabs" role="tablist" aria-label="Choose a beach">
+      <button class="tab" role="tab" data-target="holden" aria-selected="true">Holden Beach</button>
+      <button class="tab" role="tab" data-target="kure" aria-selected="false">Kure Beach</button>
+      <button class="tab" role="tab" data-target="leland" aria-selected="false">Leland</button>
+      <button class="tab" role="tab" data-target="oib" aria-selected="false">Ocean Isle Beach</button>
+      <button class="tab" role="tab" data-target="shallotte" aria-selected="false">Shallotte</button>
+      <button class="tab" role="tab" data-target="southport" aria-selected="false">Southport</button>
+      <button class="tab" role="tab" data-target="sunset" aria-selected="false">Sunset Beach</button>
+    </div>
+  </nav>
+</header>
+
+<main id="main">
+  <div class="wrap hero">
+    <h1>Free <em>Concerts</em></h1>
+    <p class="lede">A running tide chart of the free outdoor concert series — who's playing, where, and when to bring your chair.</p>
+    <div class="next-up" id="nextUp">
+      <div>
+        <p class="tag">Loading next show…</p>
+      </div>
+    </div>
+  </div>
+
+  <svg class="wave wrap" viewBox="0 0 1040 44" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 22 Q 40 2 80 22 T 160 22 T 240 22 T 320 22 T 400 22 T 480 22 T 560 22 T 640 22 T 720 22 T 800 22 T 880 22 T 960 22 T 1040 22" />
+  </svg>
+
+  <!-- OCEAN ISLE BEACH -->
+  <section class="beach wrap" id="oib" hidden>
+    <div class="beach-head">
+      <div>
+        <p class="series-name">Peggy Hughes Summer Concert Series</p>
+        <h2>Ocean Isle Beach</h2>
+      </div>
+      <div class="facts">
+        <span>📍 <strong>Town Center Park</strong>, 11 E 2nd St</span>
+        <span>🗓️ <strong>Fridays</strong> (mostly) · May 24–Sep 6</span>
+        <span>🕡 <strong>6:30 PM</strong> · chairs down at 5:00 PM</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=Town+Center+Park+Ocean+Isle+Beach+NC" target="_blank" rel="noopener">Get directions</a>
+      <a class="btn ghost" href="https://forecast.weather.gov/zipcity.php?inputstring=Ocean+Isle+Beach,NC" target="_blank" rel="noopener">Check the forecast</a>
+      <a class="btn ghost" href="https://www.google.com/maps/search/restaurants+near+Town+Center+Park+Ocean+Isle+Beach+NC" target="_blank" rel="noopener">Restaurants nearby</a>
+      <a class="btn ghost" href="https://oceanislebeach.com/summer-concert-series/" target="_blank" rel="noopener">Official schedule ↗</a>
+    </div>
+
+    <div class="board" id="board-oib"></div>
+
+    <div class="info-grid">
+      <div class="card">
+        <h3>Good to know</h3>
+        <p>No smoking, vaping, glass, or pets inside the park during concerts. Chair set-up is first-come, first-served starting at 5:00 PM.</p>
+      </div>
+      <div class="card">
+        <h3>Rain plan</h3>
+        <p>Concerts are weather-dependent. If storms are forecast, check the <a class="inline" href="https://oceanislebeach.com/summer-concert-series/" target="_blank" rel="noopener">town's concert page</a> before you head out.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SOUTHPORT -->
+  <section class="beach wrap" id="southport" hidden>
+    <div class="beach-head">
+      <div>
+        <p class="series-name">Southport Concert Series</p>
+        <h2>Southport</h2>
+      </div>
+      <div class="facts">
+        <span>📍 <strong>Franklin Square Park</strong></span>
+        <span>🗓️ <strong>Thursdays</strong> · Memorial Day–Labor Day</span>
+        <span>🕕 <strong>6:00–8:00 PM</strong></span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=Franklin+Square+Park+Southport+NC" target="_blank" rel="noopener">Get directions</a>
+      <a class="btn ghost" href="https://forecast.weather.gov/zipcity.php?inputstring=Southport,NC" target="_blank" rel="noopener">Check the forecast</a>
+      <a class="btn ghost" href="https://www.google.com/maps/search/restaurants+near+Franklin+Square+Park+Southport+NC" target="_blank" rel="noopener">Restaurants nearby</a>
+      <a class="btn ghost" href="https://www.exploresouthportnc.gov/southport_concert_series/index.php" target="_blank" rel="noopener">Official schedule ↗</a>
+    </div>
+
+    <div class="board" id="board-southport"></div>
+
+    <div class="info-grid">
+      <div class="card">
+        <h3>Good to know</h3>
+        <p>Bring a picnic blanket or lawn chair. There's no concert during the week of the NC 4th of July Festival.</p>
+      </div>
+      <div class="card">
+        <h3>Presented by</h3>
+        <p>City of Southport, in collaboration with Up Your Arts and Cape Fear Radio.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- KURE BEACH -->
+  <section class="beach wrap" id="kure" hidden>
+    <div class="beach-head">
+      <div>
+        <p class="series-name">Boogie in the Park</p>
+        <h2>Kure Beach</h2>
+      </div>
+      <div class="facts">
+        <span>📍 <strong>Ocean Front Park &amp; Pavilion</strong></span>
+        <span>🗓️ <strong>1st &amp; 3rd Sunday</strong> · May–Oct</span>
+        <span>🕔 <strong>5:00–7:00 PM</strong></span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=Ocean+Front+Park+Kure+Beach+NC" target="_blank" rel="noopener">Get directions</a>
+      <a class="btn ghost" href="https://forecast.weather.gov/zipcity.php?inputstring=Kure+Beach,NC" target="_blank" rel="noopener">Check the forecast</a>
+      <a class="btn ghost" href="https://www.google.com/maps/search/restaurants+near+Ocean+Front+Park+Kure+Beach+NC" target="_blank" rel="noopener">Restaurants nearby</a>
+      <a class="btn ghost" href="https://www.townofkurebeach.org/news/boogie-park-sunday-hatch-brothers" target="_blank" rel="noopener">Official schedule ↗</a>
+    </div>
+
+    <div class="board" id="board-kure"></div>
+
+    <div class="info-grid">
+      <div class="card">
+        <h3>Good to know</h3>
+        <p>Skips the weekends of July 4th and Labor Day. Genres rotate week to week — funk, country, reggae, soul, and more.</p>
+      </div>
+      <div class="card">
+        <h3>While you're there</h3>
+        <p>Turtle Talk runs Monday evenings and the Kure Beach Market pops up Tuesday mornings, both nearby at Ocean Front Park.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOLDEN BEACH -->
+  <section class="beach wrap" id="holden">
+    <div class="beach-head">
+      <div>
+        <p class="series-name">Holden Beach Summer Concert Series</p>
+        <h2>Holden Beach</h2>
+      </div>
+      <div class="facts">
+        <span>📍 <strong>Bridgeview Park</strong>, near Town Hall (moves to Block Q mid-season)</span>
+        <span>🗓️ <strong>Sundays</strong> · May 24–Sep 6</span>
+        <span>🕡 <strong>6:30–8:00 PM</strong></span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=Bridgeview+Park+Holden+Beach+NC" target="_blank" rel="noopener">Get directions</a>
+      <a class="btn ghost" href="https://forecast.weather.gov/zipcity.php?inputstring=Holden+Beach,NC" target="_blank" rel="noopener">Check the forecast</a>
+      <a class="btn ghost" href="https://www.google.com/maps/search/restaurants+near+Bridgeview+Park+Holden+Beach+NC" target="_blank" rel="noopener">Restaurants nearby</a>
+      <a class="btn ghost" href="https://holdenbeachnc.com/holden-beach-concert-schedule/" target="_blank" rel="noopener">Official schedule ↗</a>
+    </div>
+
+    <div class="board" id="board-holden"></div>
+
+    <div class="info-grid">
+      <div class="card">
+        <h3>Good to know</h3>
+        <p>Genres run from beach music to jazz, oldies, and rock 'n' roll. Midway through the season the venue is scheduled to shift from Bridgeview Park to Block Q — check the town's page before you head out.</p>
+      </div>
+      <div class="card">
+        <h3>Questions?</h3>
+        <p>Call the Town of Holden Beach at (910) 842-6488 for the latest details.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUNSET BEACH -->
+  <section class="beach wrap" id="sunset" hidden>
+    <div class="beach-head">
+      <div>
+        <p class="series-name">Sunset Sound Waves</p>
+        <h2>Sunset Beach</h2>
+      </div>
+      <div class="facts">
+        <span>📍 <strong>Town Park</strong>, 206 Sunset Blvd. North</span>
+        <span>🗓️ <strong>Wednesdays</strong> (+ Fri Jul 3) · May 27–Sep 2</span>
+        <span>🕕 <strong>6:00–8:00 PM</strong></span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=Town+Park+206+Sunset+Blvd+North+Sunset+Beach+NC" target="_blank" rel="noopener">Get directions</a>
+      <a class="btn ghost" href="https://forecast.weather.gov/zipcity.php?inputstring=Sunset+Beach,NC" target="_blank" rel="noopener">Check the forecast</a>
+      <a class="btn ghost" href="https://www.google.com/maps/search/restaurants+near+Sunset+Beach+Town+Park+NC" target="_blank" rel="noopener">Restaurants nearby</a>
+      <a class="btn ghost" href="https://sunsetbeachnc.gov/sunset-sound" target="_blank" rel="noopener">Official schedule ↗</a>
+    </div>
+
+    <div class="board" id="board-sunset"></div>
+
+    <div class="info-grid">
+      <div class="card">
+        <h3>Good to know</h3>
+        <p>Sixteen dates of free live music — beach music, classic rock, and variety acts — organized and funded by the Town of Sunset Beach, plus a bonus Friday show on July 3.</p>
+      </div>
+      <div class="card">
+        <h3>Rain plan</h3>
+        <p>No formal rain policy is published; cancellations or changes are posted on the town's website and social media, so check before you leave.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SHALLOTTE -->
+  <section class="beach wrap" id="shallotte" hidden>
+    <div class="beach-head">
+      <div>
+        <p class="series-name">Sounds of Summer</p>
+        <h2>Shallotte</h2>
+      </div>
+      <div class="facts">
+        <span>📍 <strong>Mulberry Park Amphitheater</strong>, 123 Mulberry St.</span>
+        <span>🗓️ <strong>Thursdays</strong> · Jul 2–Sep 10</span>
+        <span>🕖 <strong>7:00–9:00 PM</strong></span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=Mulberry+Park+123+Mulberry+St+Shallotte+NC" target="_blank" rel="noopener">Get directions</a>
+      <a class="btn ghost" href="https://forecast.weather.gov/zipcity.php?inputstring=Shallotte,NC" target="_blank" rel="noopener">Check the forecast</a>
+      <a class="btn ghost" href="https://www.google.com/maps/search/restaurants+near+Mulberry+Park+Shallotte+NC" target="_blank" rel="noopener">Restaurants nearby</a>
+      <a class="btn ghost" href="https://www.townofshallotte.org/index.asp?SEC=A6A73045-5999-4367-AC57-EA2D3041567D" target="_blank" rel="noopener">Official schedule ↗</a>
+    </div>
+
+    <div class="board" id="board-shallotte"></div>
+
+    <div class="info-grid">
+      <div class="card">
+        <h3>Good to know</h3>
+        <p>New food trucks join the lineup this year. Rain dates fall at the end of the season if a night gets rescheduled — check the town's Facebook page (Shallotte Parks &amp; Rec) for cancellation notices.</p>
+      </div>
+      <div class="card">
+        <h3>Questions?</h3>
+        <p>Call the Town of Shallotte at (910) 754-4032 for the latest details.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- LELAND -->
+  <section class="beach wrap" id="leland" hidden>
+    <div class="beach-head">
+      <div>
+        <p class="series-name">Live in Leland</p>
+        <h2>Leland</h2>
+      </div>
+      <div class="facts">
+        <span>📍 <strong>Founders Park Amphitheater</strong>, 113 Town Hall Dr.</span>
+        <span>🗓️ <strong>Select dates</strong> · Jul–Sep</span>
+        <span>🕕 <strong>6:00–8:00 PM</strong></span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn primary" href="https://www.google.com/maps/search/?api=1&query=Founders+Park+113+Town+Hall+Drive+Leland+NC" target="_blank" rel="noopener">Get directions</a>
+      <a class="btn ghost" href="https://forecast.weather.gov/zipcity.php?inputstring=Leland,NC" target="_blank" rel="noopener">Check the forecast</a>
+      <a class="btn ghost" href="https://www.google.com/maps/search/restaurants+near+Founders+Park+Leland+NC" target="_blank" rel="noopener">Restaurants nearby</a>
+      <a class="btn ghost" href="https://www.townofleland.com/parks-recreation-cultural-resources/programs-events/live-leland" target="_blank" rel="noopener">Official schedule ↗</a>
+    </div>
+
+    <div class="board" id="board-leland"></div>
+
+    <div class="info-grid">
+      <div class="card">
+        <h3>Good to know</h3>
+        <p>Leland's newest series, launched with the Founders Park grand opening in 2026. Expect a mix of live music and theatrical performances, plus food trucks, a beer garden, and yard games.</p>
+      </div>
+      <div class="card">
+        <h3>Parking</h3>
+        <p>Limited lot at the park; overflow parking is available at First Baptist Church (517 Village Road) and North Brunswick High School.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Summer Concerts is an unofficial fan-made guide. Always confirm dates on each town's official site before you go.</span>
+    <span>Built for GitHub Pages · edit <code>SHOWS</code> in the script below to update lineups.</span>
+  </div>
+</footer>
+
+<button class="save-fab" id="saveFab" type="button" aria-haspopup="dialog">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <path d="M12 3v12m0 0-4-4m4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  Save to phone
+</button>
+
+<div class="modal-overlay" id="saveModal" role="dialog" aria-modal="true" aria-labelledby="saveModalTitle" hidden>
+  <div class="modal-sheet">
+    <h3 id="saveModalTitle">Save Summer Concerts to your phone</h3>
+    <p class="sub" id="saveModalSub">Add it to your home screen for one-tap access all summer.</p>
+    <div id="saveSteps"></div>
+    <div class="modal-actions">
+      <button type="button" class="primary" id="saveShareBtn">Share link</button>
+      <button type="button" id="saveCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Link copied to clipboard</div>
+
+<script>
+  // ---- Edit this data to update lineups each season ----
+  const SHOWS = {
+    oib: [
+      { date: '2026-05-24', act: 'The Entertainers' },
+      { date: '2026-06-05', act: 'Shine' },
+      { date: '2026-06-12', act: 'Continental Divide' },
+      { date: '2026-06-19', act: 'North Tower' },
+      { date: '2026-06-26', act: "Gary Lowder & Smokin' Hot" },
+      { date: '2026-07-01', act: 'Chocolate Chip & Company' },
+      { date: '2026-07-10', act: 'Rivermist' },
+      { date: '2026-07-17', act: 'Blackwater Band' },
+      { date: '2026-07-24', act: 'The Main Event Band' },
+      { date: '2026-07-31', act: 'Jam Biscuit' },
+      { date: '2026-08-07', act: 'Special Occasion Band' },
+      { date: '2026-08-14', act: 'The Embers ft. Craig Woolard' },
+      { date: '2026-08-21', act: 'Uptown Easy' },
+      { date: '2026-08-28', act: 'Julio & the Saltines' },
+      { date: '2026-09-06', act: 'The Extraordinaires' },
+    ],
+    southport: [
+      { date: '2026-06-18', act: 'Krispee Biscuits' },
+      { date: '2026-06-25', act: 'Gary & Linda Scalfani' },
+      { date: '2026-07-09', act: 'The Dust Parade' },
+      { date: '2026-07-16', act: 'Rusty Bones of Southport' },
+      { date: '2026-07-23', act: 'Hodnett Family Band' },
+      { date: '2026-07-30', act: 'Bacon Grease' },
+      { date: '2026-08-06', act: 'Burning Bridges Jazz' },
+      { date: '2026-08-20', act: 'The Doorsmen' },
+      { date: '2026-08-27', act: 'Honey & Bones' },
+    ],
+    kure: [
+      { date: '2026-08-16', act: 'Southern Trouble' },
+      { date: '2026-09-20', act: "Carl Newton's Review" },
+      { date: '2026-10-04', act: 'The Cruise Brothers Band' },
+      { date: '2026-10-18', act: 'Brown Dirt Cowboys' },
+    ],
+    holden: [
+      { date: '2026-05-24', act: 'Special Occasion Band' },
+      { date: '2026-05-31', act: 'Gary Lowder' },
+      { date: '2026-06-07', act: 'Jim Quick and Coastline' },
+      { date: '2026-06-14', act: 'The Embers ft. Craig Woolard' },
+      { date: '2026-06-21', act: 'Carolina Kool' },
+      { date: '2026-06-28', act: 'The Extraordinaires' },
+      { date: '2026-07-05', act: 'The Tams' },
+      { date: '2026-07-12', act: 'Band of Oz' },
+      { date: '2026-07-19', act: 'Too Much Sylvia' },
+      { date: '2026-07-26', act: 'Blackwater Band' },
+      { date: '2026-08-02', act: 'The Sand Band' },
+      { date: '2026-08-09', act: 'North Tower' },
+      { date: '2026-08-16', act: 'Continental Divide' },
+      { date: '2026-08-23', act: 'I-42' },
+      { date: '2026-08-30', act: 'The Main Event' },
+      { date: '2026-09-06', act: 'Chairman of the Board' },
+    ],
+    sunset: [
+      { date: '2026-05-27', act: 'Julio and the Saltines' },
+      { date: '2026-06-03', act: 'Band of Oz' },
+      { date: '2026-06-10', act: "The MacDaddy's" },
+      { date: '2026-06-17', act: 'JB & The Get Down Browns' },
+      { date: '2026-06-24', act: 'The Switch' },
+      { date: '2026-07-01', act: 'Gimme Back My Skynrd' },
+      { date: '2026-07-03', act: 'Rivermist' },
+      { date: '2026-07-08', act: 'Chocolate Chip' },
+      { date: '2026-07-15', act: 'Band on Fire' },
+      { date: '2026-07-22', act: 'Too Much Sylvia' },
+      { date: '2026-07-29', act: 'Unknown Artist Band' },
+      { date: '2026-08-05', act: 'North Tower' },
+      { date: '2026-08-12', act: 'Pushh' },
+      { date: '2026-08-19', act: 'Pink Slips' },
+      { date: '2026-08-26', act: 'Whitewing Dove' },
+      { date: '2026-09-02', act: 'Julio and the Saltines' },
+    ],
+    shallotte: [
+      { date: '2026-07-02', act: 'Chocolate Chip & Company' },
+      { date: '2026-07-09', act: 'The Catalinas' },
+      { date: '2026-07-16', act: 'Fabulous Fish Heads' },
+      { date: '2026-07-23', act: 'Special Occasion Band' },
+      { date: '2026-07-30', act: 'Band of Oz' },
+      { date: '2026-08-06', act: 'Julio & The Saltines' },
+      { date: '2026-08-13', act: 'JackJack 180' },
+      { date: '2026-08-20', act: 'Too Much Sylvia' },
+      { date: '2026-08-27', act: 'Jebb Mac Band' },
+      { date: '2026-09-03', act: 'North Tower' },
+    ],
+    leland: [
+      { date: '2026-07-31', act: 'The Embers ft. Craig Woolard (Founders Park grand opening)' },
+      { date: '2026-08-13', act: 'Departure — The Journey Tribute Band' },
+      { date: '2026-08-21', act: "Aesop's Fables (Brunswick Arts Council)" },
+      { date: '2026-08-27', act: 'The British Invaders' },
+      { date: '2026-09-03', act: 'Dear MariBella and the Pig Kickers' },
+    ],
+  };
+  const BEACH_LABEL = {
+    oib: 'Ocean Isle Beach', southport: 'Southport', kure: 'Kure Beach',
+    holden: 'Holden Beach', sunset: 'Sunset Beach', shallotte: 'Shallotte', leland: 'Leland',
+  };
+
+  function fmtDate(iso){
+    const d = new Date(iso + 'T12:00:00');
+    return d.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric' });
+  }
+
+  function renderBoard(key){
+    const el = document.getElementById('board-' + key);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const rows = SHOWS[key].filter(r => {
+      const d = new Date(r.date + 'T12:00:00');
+      return d >= today;
+    });
+    if (rows.length === 0){
+      el.innerHTML = `<div class="board-note">No more concerts left on the schedule here for now — check the official page for next season's dates.</div>`;
+      return;
+    }
+    el.innerHTML = rows.map(r => {
+      const d = new Date(r.date + 'T12:00:00');
+      const isToday = d.toDateString() === today.toDateString();
+      return `<div class="board-row${isToday ? ' today' : ''}">
+        <span class="date">${fmtDate(r.date)}</span>
+        <span class="act">${r.act}</span>
+        <span class="status">${isToday ? 'Tonight' : 'Upcoming'}</span>
+      </div>`;
+    }).join('') + `<div class="board-note">Full-season lineups run through early September (Southport/OIB) or October (Kure Beach) — see each town's official page for dates not yet listed here.</div>`;
+  }
+
+  ['oib','southport','kure','holden','sunset','shallotte','leland'].forEach(renderBoard);
+
+  // Next up banner: soonest show across all three beaches
+  function computeNextUp(){
+    const today = new Date(); today.setHours(0,0,0,0);
+    let best = null;
+    for (const key of Object.keys(SHOWS)){
+      for (const r of SHOWS[key]){
+        const d = new Date(r.date + 'T12:00:00');
+        if (d >= today && (!best || d < best.date)){
+          best = { date: d, act: r.act, beach: key, iso: r.date };
+        }
+      }
+    }
+    return best;
+  }
+
+  const nextUpEl = document.getElementById('nextUp');
+  const next = computeNextUp();
+  if (next){
+    nextUpEl.innerHTML = `<div>
+      <p class="tag">Next up · ${BEACH_LABEL[next.beach]}</p>
+      <p class="title">${next.act}</p>
+      <p class="meta">${fmtDate(next.iso)}</p>
+    </div>`;
+  } else {
+    nextUpEl.innerHTML = `<div>
+      <p class="tag">Season's over</p>
+      <p class="title">Check back next spring</p>
+      <p class="meta">Lineups usually post by early May</p>
+    </div>`;
+  }
+
+  // Tab switching
+  const tabs = document.querySelectorAll('.tab');
+  const sections = {
+    oib: document.getElementById('oib'),
+    southport: document.getElementById('southport'),
+    kure: document.getElementById('kure'),
+    holden: document.getElementById('holden'),
+    sunset: document.getElementById('sunset'),
+    shallotte: document.getElementById('shallotte'),
+    leland: document.getElementById('leland'),
+  };
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+      tab.setAttribute('aria-selected', 'true');
+      Object.entries(sections).forEach(([key, el]) => {
+        el.hidden = key !== tab.dataset.target;
+      });
+      sections[tab.dataset.target].scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // ---------- Save to phone / Add to Home Screen ----------
+  (function(){
+    // Build a manifest on the fly so the whole thing stays a single HTML file.
+    try {
+      const manifest = {
+        name: 'Summer Concerts — Coastal NC Concert Tracker',
+        short_name: 'Summer Concerts',
+        start_url: location.pathname,
+        display: 'standalone',
+        background_color: '#0e2436',
+        theme_color: '#0e2436',
+      };
+      const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+      document.getElementById('manifestLink').setAttribute('href', URL.createObjectURL(blob));
+    } catch (e) { /* manifest is a nice-to-have, safe to skip if it fails */ }
+
+    const ua = navigator.userAgent || '';
+    const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+    const isAndroid = /Android/.test(ua);
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    const fab = document.getElementById('saveFab');
+    const modal = document.getElementById('saveModal');
+    const steps = document.getElementById('saveSteps');
+    const sub = document.getElementById('saveModalSub');
+    const closeBtn = document.getElementById('saveCloseBtn');
+    const shareBtn = document.getElementById('saveShareBtn');
+    const toast = document.getElementById('toast');
+
+    if (isStandalone) fab.style.display = 'none';
+
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    function stepsHTML(){
+      if (isIOS){
+        return `
+          <div class="step"><span class="num">1</span><p>Tap the <em>Share</em> icon in Safari's toolbar (the square with an arrow).</p></div>
+          <div class="step"><span class="num">2</span><p>Scroll down and choose <em>Add to Home Screen</em>.</p></div>
+          <div class="step"><span class="num">3</span><p>Tap <em>Add</em> — Summer Concerts will appear as an app icon on your home screen.</p></div>`;
+      }
+      if (isAndroid){
+        return `
+          <div class="step"><span class="num">1</span><p>Tap the <em>⋮</em> menu in the top-right of your browser.</p></div>
+          <div class="step"><span class="num">2</span><p>Choose <em>Add to Home screen</em> (or <em>Install app</em>, if you see the button below).</p></div>
+          <div class="step"><span class="num">3</span><p>Confirm — Summer Concerts will appear as an app icon on your home screen.</p></div>`;
+      }
+      return `
+        <div class="step"><span class="num">1</span><p>Open this page on your phone (share the link below), then use your browser's menu.</p></div>
+        <div class="step"><span class="num">2</span><p>Look for <em>Add to Home Screen</em> or <em>Install app</em>.</p></div>`;
+    }
+
+    function openModal(){
+      steps.innerHTML = stepsHTML();
+      if (deferredPrompt){
+        sub.textContent = 'Install it as an app, or add it to your home screen manually:';
+        if (!document.getElementById('installNowBtn')){
+          const installBtn = document.createElement('button');
+          installBtn.id = 'installNowBtn';
+          installBtn.type = 'button';
+          installBtn.className = 'primary';
+          installBtn.textContent = 'Install now';
+          installBtn.style.marginBottom = '16px';
+          installBtn.addEventListener('click', async () => {
+            deferredPrompt.prompt();
+            await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            closeModal();
+          });
+          steps.prepend(installBtn);
+        }
+      } else {
+        sub.textContent = 'Add it to your home screen for one-tap access all summer.';
+      }
+      modal.hidden = false;
+    }
+    function closeModal(){ modal.hidden = true; }
+
+    fab.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    shareBtn.addEventListener('click', async () => {
+      const shareData = {
+        title: 'Summer Concerts — Coastal NC Concert Tracker',
+        text: 'Free beach concert schedules for the NC coast',
+        url: location.href,
+      };
+      if (navigator.share){
+        try { await navigator.share(shareData); } catch (e) { /* user cancelled */ }
+      } else if (navigator.clipboard){
+        try {
+          await navigator.clipboard.writeText(location.href);
+          showToast('Link copied to clipboard');
+        } catch (e) {
+          showToast('Copy this page\'s URL to share it');
+        }
+      } else {
+        showToast('Copy this page\'s URL to share it');
+      }
+    });
+  })();
+</script>
+</body>
+</html>
